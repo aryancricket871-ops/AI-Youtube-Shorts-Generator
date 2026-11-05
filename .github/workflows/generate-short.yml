@@ -10,13 +10,22 @@ on:
         description: "Topic to use (leave empty to let the AI pick one)"
         required: false
         type: string
+      lang:
+        description: "Language (hi = Hindi, en = English, pt-BR = Portuguese)"
+        required: false
+        default: "hi"
+        type: choice
+        options:
+          - hi
+          - en
+          - pt-BR
       runs:
         description: "How many videos to generate"
         required: false
         default: "1"
         type: string
       voice:
-        description: "edge-tts voice"
+        description: "edge-tts voice (leave as default to use the natural voice for the language; Hindi male: hi-IN-MadhurNeural)"
         required: false
         default: "en-US-AvaNeural"
         type: string
@@ -71,6 +80,7 @@ jobs:
           # Passed as env rather than interpolated into the script, so a topic
           # containing shell metacharacters cannot break out of the command.
           INPUT_TOPIC: ${{ inputs.topic }}
+          INPUT_LANG: ${{ inputs.lang || 'hi' }}
           INPUT_RUNS: ${{ inputs.runs || '1' }}
           INPUT_VOICE: ${{ inputs.voice || 'en-US-AvaNeural' }}
           INPUT_UPLOAD: ${{ inputs.upload }}
@@ -79,7 +89,7 @@ jobs:
           YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
           YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
         run: |
-          ARGS=(--runs "$INPUT_RUNS" --voice "$INPUT_VOICE")
+          ARGS=(--runs "$INPUT_RUNS" --lang "$INPUT_LANG" --voice "$INPUT_VOICE")
           if [ -n "$INPUT_TOPIC" ]; then
             ARGS+=(--topic "$INPUT_TOPIC")
           fi
